@@ -1,0 +1,23 @@
+# General
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/gemini_error.txt
+backend/test_log*.txt
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Project Specific
+backend/models.txt
+backend/server.log

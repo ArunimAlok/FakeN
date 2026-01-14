@@ -1,0 +1,122 @@
+[
+  {
+    "text": "The government has announced a new policy for renewable energy subsidies starting next month. Details are available on the official ministry website.",
+    "label": "real"
+  },
+  {
+    "text": "Yesterday's cricket match score was India 250, Australia 240. It was a close game.",
+    "label": "real"
+  },
+  {
+    "text": "NASA has just released a picture of India during Diwali showing it constitutes 90% of world lights! 🎆🎆 Proud to be Indian! 🇮🇳 Forward to all your groups!",
+    "label": "fake"
+  },
+  {
+    "text": "UNESCO has declared the Indian National Anthem as the best anthem in the world. 🚩🚩 Share this if you are a true patriot! 🇮🇳",
+    "label": "fake"
+  },
+  {
+    "text": "Drink hot water with lemon to kill all cancer cells immediately. Confirmed by Dr. Gupta from US. 🍋🍋🍋 Please share to save lives!!",
+    "label": "fake"
+  },
+  {
+    "text": "Local authorities have issued a heavy rain alert for Mumbai for the next 48 hours. Please stay indoors if possible.",
+    "label": "real"
+  },
+  {
+    "text": "If you don't forward this message to 10 people, bad luck will follow you for 7 years. 🌑 Don't ignore! 👁️",
+    "label": "fake"
+  },
+  {
+    "text": "RBI has introduced a new chip in 2000 rupee notes that can track black money via satellite. 📡💸 Great move by PM! 🇮🇳",
+    "label": "fake"
+  },
+  {
+    "text": "The stock market closed 500 points higher today driven by positive global cues.",
+    "label": "real"
+  },
+  {
+    "text": "WARNING: Do not drink Pepsi for the next few days. A worker added his infected blood to it. 🩸🩸 Confirmed news on TV. Forward immediately!",
+    "label": "fake"
+  },
+  {
+    "text": "Narendra Modi is the current Prime Minister of India, serving his second term.",
+    "label": "real"
+  },
+  {
+    "text": "Droupadi Murmu is the President of India and the first person belonging to a tribal community to hold the office.",
+    "label": "real"
+  },
+  {
+    "text": "The Indian Parliament building, known as Sansad Bhavan, is located in New Delhi.",
+    "label": "real"
+  },
+  {
+    "text": "ISRO's Chandrayaan-3 mission successfully landed on the lunar south pole in August 2023.",
+    "label": "real"
+  },
+  {
+    "text": "The Reserve Bank of India (RBI) is the central bank of the country and regulates the banking system.",
+    "label": "real"
+  },
+  {
+    "text": "Amit Shah currently serves as the Union Home Minister of India.",
+    "label": "real"
+  },
+  {
+    "text": "Dr. S. Jaishankar is the Minister of External Affairs of India.",
+    "label": "real"
+  },
+  {
+    "text": "Nirmala Sitharaman is the Union Minister of Finance and Corporate Affairs.",
+    "label": "real"
+  },
+  {
+    "text": "The Supreme Court of India is the highest judicial court under the Constitution of India.",
+    "label": "real"
+  },
+  {
+    "text": "The Election Commission of India is an autonomous constitutional authority responsible for administering election processes in India.",
+    "label": "real"
+  },
+  {
+    "text": "The Indian Constitution was adopted by the Constituent Assembly on 26th November 1949 and came into effect on 26th January 1950.",
+    "label": "real"
+  },
+  {
+    "text": "New Delhi serves as the capital city of India and the seat of all three branches of the Government of India.",
+    "label": "real"
+  },
+  {
+    "text": "The Ganges is a trans-boundary river of Asia which flows through India and Bangladesh.",
+    "label": "real"
+  },
+  {
+    "text": "The Indian Rupee (INR) is the official currency of the Republic of India.",
+    "label": "real"
+  },
+  {
+    "text": "International Day of Yoga is celebrated annually on 21 June since its inception in the United Nations General Assembly in 2014.",
+    "label": "real"
+  },
+  {
+    "text": "India hosted the 18th G20 Summit in New Delhi in September 2023.",
+    "label": "real"
+  },
+  {
+    "text": "Atal Bihari Vajpayee served three terms as the Prime Minister of India.",
+    "label": "real"
+  },
+  {
+    "text": "The Right of Children to Free and Compulsory Education Act of 2009 makes education a fundamental right for children aged 6 to 14.",
+    "label": "real"
+  },
+  {
+    "text": "Digital India is a campaign launched by the Government of India to ensure that Government services are made available to citizens electronically.",
+    "label": "real"
+  },
+  {
+    "text": "The Taj Mahal, located in Agra, is a UNESCO World Heritage site and one of the New Seven Wonders of the World.",
+    "label": "real"
+  }
+]
