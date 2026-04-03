@@ -1,117 +1,150 @@
 import asyncio
 import os
 import json
-import google.generativeai as genai
+from groq import Groq
+from ddgs import DDGS
 from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class LLMService:
     def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
-            print("Gemini 2.5 Flash initialized successfully.")
+            self.client = Groq(api_key=self.api_key)
+            print("Groq LLM (llama-3.3-70b-versatile) initialized successfully.")
         else:
-            self.model = None
-            print("Warning: GEMINI_API_KEY not found in environment variables.")
+            self.client = None
+            print("Warning: GROQ_API_KEY not found in environment variables.")
 
-    async def analyze(self, text, pattern_result, retrieved_context=None):
+    def _live_search(self, query: str, max_results: int = 3) -> str:
+        """Run a real-time DuckDuckGo search and return top snippet text."""
+        try:
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=max_results))
+            if not results:
+                return "No live search results found."
+            snippets = [f"- {r['title']}: {r['body']}" for r in results]
+            return "Live Web Search Results:\n" + "\n".join(snippets)
+        except Exception as e:
+            print(f"DuckDuckGo search error: {e}")
+            return "Live search temporarily unavailable."
+
+    async def analyze(self, text, pattern_result, fact_check_result=None, live_news=None):
         """
-        Synthesizes the pattern result and retrieved context using Google Gemini 1.5 Flash.
+        Synthesizes the pattern result, Fact Check API result, Live News,
+        and DuckDuckGo live search into a single Groq LLM master call.
         Falls back to simulation if no API key is provided.
         """
-        
-        # If no API key, use the enhanced simulation logic we built
-        if not self.model:
-            return await self._simulate_analyze(text, pattern_result, retrieved_context)
+        if not self.client:
+            return await self._simulate_analyze(text, pattern_result, fact_check_result)
 
-        # Build the prompt for Gemini
-        context_str = retrieved_context["fact"] if retrieved_context else "No specific fact-check record found for this claim."
-        
+        # Build context blocks
+        fact_str = ""
+        if fact_check_result:
+            fact_str = (
+                f"Fact Check found: {fact_check_result['claimant']} claimed "
+                f"'{fact_check_result['claim_text']}'. "
+                f"Reviewer {fact_check_result['reviewer']} rated it: {fact_check_result['rating']}."
+            )
+        else:
+            fact_str = "No specific fact-check record found for this claim."
+
+        news_str = ""
+        if live_news:
+            headlines = [f"- {a['source']}: {a['title']}" for a in live_news[:3]]
+            news_str = "Recent Live News:\n" + "\n".join(headlines)
+        else:
+            news_str = "No related recent news found."
+
+        # Run DuckDuckGo live search in a thread to avoid blocking
+        loop = asyncio.get_event_loop()
+        ddg_str = await loop.run_in_executor(None, self._live_search, text, 3)
+
         prompt = f"""
-        You are an expert Fake News Detector specialized in Indian social media contexts (WhatsApp forwards, news snippets).
-        Analyze the following user input and provide a verdict based on the provided style analysis and factual context.
+You are an expert Fake News Detector and Propaganda Analyst. Today's date is April 2025.
+You have access to four layers of evidence, listed in order of priority (highest to lowest):
+1. DuckDuckGo Live Web Search (MOST TRUSTED — real-time search results, always current)
+2. Google Fact Check Explorer (Official debunkings by verified fact-checkers)
+3. Live News (NewsAPI Current Events)
+4. Stylistic Pattern Analysis (LIAR Dataset Model — LEAST TRUSTED, purely stylistic)
 
-        USER INPUT: "{text}"
-        
-        FORENSIC ANALYSIS (Writing Style):
-        - Suspicion Score: {pattern_result['score']} (0.0 to 1.0, where 1.0 is highly suspicious style)
-        - Style Label: {pattern_result['label']}
+USER INPUT TO VERIFY: "{text}"
 
-        RETRIEVED FACTUAL CONTEXT:
-        "{context_str}"
+---- EVIDENCE PACKET ----
+FORENSIC ANALYSIS (Stylistic Model):
+- Suspicion Score: {pattern_result['score']} (0.0=Safe, 1.0=Highly Suspicious)
+- Label: {pattern_result['label']}
 
-        INSTRUCTIONS:
-        1. Compare the USER INPUT against the RETRIEVED FACTUAL CONTEXT.
-        2. Consider the writing style score.
-        3. Determine if the claim is:
-           - "Verified / Safe": Claim is supported by fact.
-           - "Confirmed Fake / Misleading": Fact explicitly contradicts the claim.
-           - "Unverified / Exaggerated": Topic is real but the specific claim is unproven or hyperbolic.
-           - "Suspicious": Style is manipulative and no factual support was found.
-           - "Likely Safe": Style is neutral and no factual contradiction was found.
-        4. Provide a concise explanation (1-2 sentences).
+GOOGLE FACT CHECK EXPLORER RESULT:
+{fact_str}
 
-        Return ONLY a JSON object in this format:
-        {{
-            "verdict": "Verdict Name",
-            "explanation": "concise explanation"
-        }}
-        """
+LIVE NEWS (NewsAPI):
+{news_str}
+
+LIVE WEB SEARCH (DuckDuckGo — Most Relevant & Current):
+{ddg_str}
+
+CRITICAL REASONING RULES:
+- ORDINAL NUMBERS: If DuckDuckGo results say someone is "the Xth president", it means they ARE CURRENTLY the president. For example, "Donald Trump is the 47th president of the United States" means Trump IS the current president in 2025. Do NOT confuse ordinal counting with historical references.
+- TRUST ORDER: Always trust DuckDuckGo live search over your own training knowledge. If DuckDuckGo says something is true today, accept it as ground truth.
+- RELEVANCE CHECK: Determine if the Fact Check or Live News is directly about the specific claim. If irrelevant, discard and use DuckDuckGo as primary source.
+- VERDICT RULES: If DuckDuckGo contradicts claim -> "Unverified / Exaggerated". If DuckDuckGo confirms claim -> "Verified / Safe". If Fact-Check says 'False' for the exact claim -> "Confirmed Fake / Misleading". Otherwise use stylistic suspicion.
+
+Return ONLY a valid JSON object with EXACTLY these keys (no markdown, no extra text):
+{{
+    "verdict": "Confirmed Fake / Misleading" | "Verified / Safe" | "Unverified / Exaggerated" | "Suspicious" | "Likely Safe",
+    "explanation": "Clear explanation of the verdict based on relevant evidence",
+    "gemini_analysis": "2-3 sentence nuanced analysis of propaganda or trustworthiness based on the evidence",
+    "manipulation_intent": "What is the psychological goal? (e.g., Fear Mongering, Political Propaganda, Genuine News)",
+    "target_audience": "Who is this targeting? (e.g., General public, nationalist audiences)",
+    "news_correlation": "Does this twist or align with real recent events? (Yes/No with 1 sentence proof)",
+    "counter_narrative": "A 1-sentence logical counter-argument or debunking statement"
+}}
+"""
 
         try:
-            # Use loop.run_in_executor for synchronous genai call in async method
-            loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, lambda: self.model.generate_content(prompt))
-            
-            # Extract JSON from response
-            res_text = response.text.strip()
-            # Clean possible markdown formatting
-            if "```json" in res_text:
-                res_text = res_text.split("```json")[1].split("```")[0].strip()
-            
-            result = json.loads(res_text)
-            return result
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.2,
+                    response_format={"type": "json_object"},
+                ),
+            )
+            res_text = response.choices[0].message.content.strip()
+            return json.loads(res_text)
         except Exception as e:
-            with open("gemini_error.txt", "w") as f:
-                f.write(str(e))
-            print(f"Gemini API Error: {e}. Falling back to simulation.")
-            return await self._simulate_analyze(text, pattern_result, retrieved_context)
+            print(f"Groq API Error: {e}")
+            return await self._simulate_analyze(text, pattern_result, fact_check_result)
 
-    async def _simulate_analyze(self, text, pattern_result, retrieved_context=None):
-        """Original skeptical simulation logic for fallback"""
-        await asyncio.sleep(1.0) # Sim delay
+    async def _simulate_analyze(self, text, pattern_result, fact_check_result=None):
+        """Simulation logic for fallback"""
+        await asyncio.sleep(1.0)
         score = pattern_result["score"]
         verdict = "Likely Safe"
         explanation = "Standard information. No obvious manipulation detected."
 
         if score > 0.7:
-            verdict = "High Risk of Fake News"
-            explanation = "Exhibits strong characteristics of viral misinformation."
-        elif score > 0.4:
             verdict = "Suspicious"
-            explanation = "Has some elements often seen in unverified forwards."
+            explanation = "Exhibits strong characteristics of typical misinformation styles."
 
-        if retrieved_context:
-            fact = retrieved_context["fact"]
-            fact_lower = fact.lower()
-            text_lower = text.lower()
-            
-            if any(word in fact_lower for word in ["fake", "never", "false", "misleading", "hoax"]):
+        if fact_check_result:
+            if "false" in fact_check_result['rating'].lower() or "fake" in fact_check_result['rating'].lower():
                 verdict = "Confirmed Fake / Misleading"
-                explanation = f"FACT CHECK: {fact}"
+                explanation = f"Fact-checked by {fact_check_result['reviewer']} as {fact_check_result['rating']}."
             else:
-                claims = ["richest", "best", "fastest", "first", "declared", "award", "highest"]
-                found_claims = [c for c in claims if c in text_lower]
-                actually_supports = any(c in fact_lower for c in found_claims)
-                
-                if found_claims and not actually_supports:
-                    verdict = "Unverified / Exaggerated"
-                    explanation = f"While we found info, the claim ('{found_claims[0]}') is unverified. Fact: {fact}"
-                elif score < 0.3:
-                    verdict = "Verified / Safe"
-                    explanation = f"Consistent with verified facts: {fact}"
-        
-        return {"verdict": verdict, "explanation": explanation}
+                verdict = "Verified / Safe"
+                explanation = f"Fact check rated this: {fact_check_result['rating']}."
+
+        return {
+            "verdict": verdict,
+            "explanation": explanation,
+            "gemini_analysis": "LLM unavailable. Fallback analysis active.",
+            "manipulation_intent": "Determined by fallback rules (Score: " + str(score) + ").",
+            "target_audience": "General audience.",
+            "news_correlation": "Unable to verify without LLM.",
+            "counter_narrative": "Evaluate factually without assuming deceptive intent."
+        }
