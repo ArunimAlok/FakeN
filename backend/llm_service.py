@@ -1,6 +1,7 @@
 import asyncio
 import os
 import json
+from datetime import datetime
 from groq import Groq
 from ddgs import DDGS
 from dotenv import load_dotenv
@@ -31,10 +32,67 @@ class LLMService:
             print(f"DuckDuckGo search error: {e}")
             return "Live search temporarily unavailable."
 
-    async def analyze(self, text, pattern_result, fact_check_result=None, live_news=None):
+    async def generate_search_queries(self, text: str) -> list[str]:
         """
-        Synthesizes the pattern result, Fact Check API result, Live News,
-        and DuckDuckGo live search into a single Groq LLM master call.
+        Uses a fast small model to generate 3 optimized, context-aware
+        search queries for the given claim. Replaces the stop-word extractor.
+        Falls back to a basic slice if the LLM call fails.
+        """
+        if not self.client:
+            # Fallback: basic 4-word slice
+            words = text.split()
+            q = " ".join(words[:5])
+            return [q, q, q]
+
+        today = datetime.now().strftime("%B %Y")
+        prompt = f"""You are a search query optimizer. Given a claim to fact-check, generate exactly 3 short, targeted English search queries that would help verify it.
+
+Claim: "{text}"
+Today's date: {today}
+
+Rules:
+- Each query must be 3-6 words maximum
+- Focus on the core subject, entity, and action
+- Make queries distinct (different angles: e.g., who/what/when)
+- Include the current year if time-sensitive
+- Return ONLY a JSON array of 3 strings, nothing else
+
+Example output: ["Donald Trump president 2026", "US president April 2026", "47th president United States"]"""
+
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                    response_format={"type": "json_object"},
+                    max_tokens=150,
+                ),
+            )
+            raw = response.choices[0].message.content.strip()
+            parsed = json.loads(raw)
+            # Handle both {"queries": [...]} and ["q1", "q2"] formats
+            if isinstance(parsed, list):
+                queries = parsed
+            else:
+                queries = parsed.get("queries", parsed.get("search_queries", list(parsed.values())[0]))
+            if isinstance(queries, list) and len(queries) >= 1:
+                # Ensure exactly 3
+                while len(queries) < 3:
+                    queries.append(queries[0])
+                return queries[:3]
+        except Exception as e:
+            print(f"Researcher LLM error (falling back to basic slice): {e}")
+
+        words = text.split()
+        q = " ".join(words[:5])
+        return [q, q, q]
+
+    async def analyze(self, text, pattern_result, fact_check_result=None, live_news=None, ddg_query=None):
+        """
+        Synthesizes all evidence layers into a single Groq master LLM call.
         Falls back to simulation if no API key is provided.
         """
         if not self.client:
@@ -58,12 +116,14 @@ class LLMService:
         else:
             news_str = "No related recent news found."
 
-        # Run DuckDuckGo live search in a thread to avoid blocking
+        # DuckDuckGo live search — use the provided optimized query or fall back to raw text
+        search_term = ddg_query or text
         loop = asyncio.get_event_loop()
-        ddg_str = await loop.run_in_executor(None, self._live_search, text, 3)
+        ddg_str = await loop.run_in_executor(None, self._live_search, search_term, 3)
 
-        prompt = f"""
-You are an expert Fake News Detector and Propaganda Analyst. Today's date is April 2025.
+        today = datetime.now().strftime("%B %Y")
+
+        prompt = f"""You are an expert Fake News Detector and Propaganda Analyst. Today's date is {today}.
 You have access to four layers of evidence, listed in order of priority (highest to lowest):
 1. DuckDuckGo Live Web Search (MOST TRUSTED — real-time search results, always current)
 2. Google Fact Check Explorer (Official debunkings by verified fact-checkers)
@@ -87,10 +147,10 @@ LIVE WEB SEARCH (DuckDuckGo — Most Relevant & Current):
 {ddg_str}
 
 CRITICAL REASONING RULES:
-- ORDINAL NUMBERS: If DuckDuckGo results say someone is "the Xth president", it means they ARE CURRENTLY the president. For example, "Donald Trump is the 47th president of the United States" means Trump IS the current president in 2025. Do NOT confuse ordinal counting with historical references.
+- ORDINAL TITLES: In positional/tenure-based contexts (Presidents, Prime Ministers, CEOs, Champions), the person associated with the highest ordinal number in recent search results is the CURRENT holder of that title. Example: "47th president" = current president. Apply this principle globally for any country or organization.
 - TRUST ORDER: Always trust DuckDuckGo live search over your own training knowledge. If DuckDuckGo says something is true today, accept it as ground truth.
-- RELEVANCE CHECK: Determine if the Fact Check or Live News is directly about the specific claim. If irrelevant, discard and use DuckDuckGo as primary source.
-- VERDICT RULES: If DuckDuckGo contradicts claim -> "Unverified / Exaggerated". If DuckDuckGo confirms claim -> "Verified / Safe". If Fact-Check says 'False' for the exact claim -> "Confirmed Fake / Misleading". Otherwise use stylistic suspicion.
+- RELEVANCE CHECK: If the Fact Check or Live News is about a different topic, discard it and rely solely on DuckDuckGo.
+- VERDICT RULES: DuckDuckGo confirms claim → "Verified / Safe". DuckDuckGo contradicts claim → "Unverified / Exaggerated". Fact-Check explicitly says 'False' for this exact claim → "Confirmed Fake / Misleading". Otherwise use stylistic suspicion score.
 
 Return ONLY a valid JSON object with EXACTLY these keys (no markdown, no extra text):
 {{

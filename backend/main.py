@@ -59,22 +59,26 @@ async def verify_message(request: VerifyRequest):
     # Step 1: Stylistic pattern score (LIAR Dataset trained)
     pattern_result = detector.predict(text)
 
-    # Step 2: Google Fact Check API
-    # Extract highly-relevant keywords for the APIs instead of sending full sentences
-    stop_words = {"is", "are", "am", "was", "were", "be", "the", "a", "an", "of", "in", "to", "for", "with", "on", "at", "by", "from", "and", "or", "but", "so", "because", "current", "did"}
-    words = [w for w in text.split() if w.lower() not in stop_words and len(w) > 2]
-    search_query = " ".join(words[:4]) if words else text[:30]
-    search_query = search_query.strip()
-    fact_check_result = fact_check_service.search_claims(search_query)
+    # Step 2: Researcher LLM — generate 3 smart, context-aware search queries
+    # Uses a fast small model (llama-3.1-8b-instant) to extract entities & intent
+    queries = await llm_service.generate_search_queries(text)
+    fact_query   = queries[0]   # Most precise — for official fact-check lookup
+    news_query   = queries[1]   # Broader — for live news article search
+    ddg_query    = queries[2]   # Open search — for DuckDuckGo web grounding
 
-    # Step 3: Rule-based propaganda pattern detection
+    print(f"AI Queries → Fact: '{fact_query}' | News: '{news_query}' | DDG: '{ddg_query}'")
+
+    # Step 3: Google Fact Check API
+    fact_check_result = fact_check_service.search_claims(fact_query)
+
+    # Step 4: Rule-based propaganda pattern detection
     propaganda_result = analyze_propaganda_patterns(text)
 
-    # Step 4: Real-time news cross-reference
-    live_news = news_service.search_news(search_query, page_size=3)
+    # Step 5: Real-time news cross-reference
+    live_news = news_service.search_news(news_query, page_size=3)
 
-    # Step 5: Master LLM synthesis (Verdict + Deep Propaganda Analysis)
-    llm_response = await llm_service.analyze(text, pattern_result, fact_check_result, live_news)
+    # Step 6: Master LLM synthesis (Verdict + Deep Propaganda Analysis)
+    llm_response = await llm_service.analyze(text, pattern_result, fact_check_result, live_news, ddg_query)
 
     return {
         "pattern_analysis": pattern_result,
