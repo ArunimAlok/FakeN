@@ -21,10 +21,6 @@ function getVerdictClass(verdict = '') {
   return 'safe'
 }
 
-function getRiskClass(level = '') {
-  const map = { Critical: 'risk-critical', High: 'risk-high', Medium: 'risk-medium', Low: 'risk-low' }
-  return map[level] || 'risk-low'
-}
 
 function getRiskColor(score) {
   if (score > 0.7) return 'var(--danger)'
@@ -131,6 +127,12 @@ function VerdictCard({ data }) {
   const score = data.pattern_analysis?.score ?? 0
   const propScore = data.propaganda_analysis?.propaganda_risk_score ?? 0
   const liveNews = data.live_news_context || []
+  const sourcesUsed = data.sources_used || []
+
+  // Only show fact check if LLM actually cited it
+  const showFactCheck = data.fact_check_context && sourcesUsed.includes('fact_check')
+  // Only show live news if LLM cited news_api, or as fallback if no sources at all
+  const showNews = liveNews.length > 0 && (sourcesUsed.includes('news_api') || sourcesUsed.length === 0)
 
   const verdictIcons = { safe: '✅', warning: '⚠️', danger: '🚨' }
 
@@ -142,11 +144,8 @@ function VerdictCard({ data }) {
           {verdictIcons[vc]} {data.final_verdict}
         </span>
         <div className="verdict-badges">
-          {data.fact_check_match && <span className="badge badge-info">📖 Verified by Fact-Check API</span>}
-          {data.propaganda_analysis?.techniques_found > 0 && (
-            <span className="badge badge-warn">⚠️ {data.propaganda_analysis.techniques_found} Techniques</span>
-          )}
-          {data.live_news_context?.length > 0 && <span className="badge badge-info">📡 Live News Cross-Check</span>}
+          {showFactCheck && <span className="badge badge-info">📖 Verified by Fact-Check API</span>}
+          {showNews && <span className="badge badge-info">📡 Live News Cross-Check</span>}
         </div>
       </div>
 
@@ -154,8 +153,8 @@ function VerdictCard({ data }) {
       <div className="verdict-body">
         <p className="verdict-explanation">{data.explanation}</p>
 
-        {/* FACT CHECK SUMMARY */}
-        {data.fact_check_context && (
+        {/* FACT CHECK — only when LLM actually used it */}
+        {showFactCheck && (
           <div className="news-refs" style={{ borderColor: 'var(--info-dim)', background: 'rgba(6, 182, 212, 0.05)', padding: '0.8rem', borderRadius: '8px', marginBottom: '1rem' }}>
             <div className="news-refs-title" style={{ color: 'var(--info)' }}>
               🛡️ Google Fact Check Explorer
@@ -208,8 +207,8 @@ function VerdictCard({ data }) {
           </div>
         )}
 
-        {/* Live News Context */}
-        {liveNews.length > 0 && (
+        {/* Live News — only when LLM actually cited news_api */}
+        {showNews && (
           <div className="news-refs">
             <div className="news-refs-title">
               📡 Related Current News
@@ -229,7 +228,9 @@ function VerdictCard({ data }) {
         <div className="verdict-meta">
           <span className="verdict-meta-item">Style: {data.pattern_analysis?.label}</span>
           <span className="verdict-meta-item">Score: {score}</span>
-          {data.rag_match && <span className="verdict-meta-item">Source: KB</span>}
+          {data.claim_type && data.claim_type !== 'general_claim' && (
+            <span className="verdict-meta-item">Type: {data.claim_type.replace('_', ' ')}</span>
+          )}
           {data.propaganda_analysis?.risk_level && (
             <span className="verdict-meta-item">Prop. Risk: {data.propaganda_analysis.risk_level}</span>
           )}
@@ -258,6 +259,8 @@ function AnalysisPanel({ analysis }) {
   }
 
   const pa = analysis.propaganda_analysis || {}
+  const isGenuine = pa.manipulation_intent?.toLowerCase().includes('none') ||
+                    pa.manipulation_intent?.toLowerCase().includes('genuine')
 
   return (
     <aside className="panel panel-analysis">
@@ -267,19 +270,22 @@ function AnalysisPanel({ analysis }) {
       </div>
 
       <div className="panel-body">
-        {/* AI Deep Analysis */}
-        {pa.gemini_analysis && (
+        {pa.gemini_analysis ? (
           <div className="gemini-section">
-            <div className="gemini-section-title">✨ AI Deep Analysis</div>
+            <div className="gemini-section-title">
+              {isGenuine ? '✅ AI Credibility Analysis' : '✨ AI Deep Analysis'}
+            </div>
 
-            {pa.manipulation_intent && (
+            {pa.manipulation_intent && !isGenuine && (
               <div className="gemini-field">
                 <div className="gemini-field-label">Manipulation Intent</div>
-                <span className="intent-chip">{pa.manipulation_intent}</span>
+                <span className="intent-chip" style={{ background: 'var(--danger-dim)', color: 'var(--danger)' }}>
+                  {pa.manipulation_intent}
+                </span>
               </div>
             )}
 
-            {pa.target_audience && (
+            {pa.target_audience && !isGenuine && (
               <div className="gemini-field">
                 <div className="gemini-field-label">Target Audience</div>
                 <div className="gemini-field-value">{pa.target_audience}</div>
@@ -312,9 +318,7 @@ function AnalysisPanel({ analysis }) {
               </div>
             )}
           </div>
-        )}
-
-        {!pa.gemini_analysis && (
+        ) : (
           <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
             No AI analysis available for this result.
           </div>
@@ -332,7 +336,7 @@ export default function App() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: "👋 Welcome to TruthSeeker v2. I can verify WhatsApp forwards, detect propaganda techniques, and cross-check claims against live news. Try pasting a suspicious message!"
+      text: "👋 Welcome to TruthSeeker v3. I can verify WhatsApp forwards, detect propaganda patterns, and cross-check claims against live news using Groq AI and DuckDuckGo. Try pasting a suspicious message!"
     }
   ])
   const [input, setInput] = useState('')
@@ -391,7 +395,7 @@ export default function App() {
           <div className="header-logo">🛡️</div>
           <h1 className="header-title">
             <span>Truth</span>Seeker
-            <span className="header-badge">v2</span>
+            <span className="header-badge">v3</span>
           </h1>
         </div>
         <div className="header-status">
@@ -463,7 +467,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* Right: Propaganda Analysis Panel */}
+        {/* Right: Deep Analysis Panel */}
         <AnalysisPanel analysis={latestAnalysis} />
       </main>
     </div>

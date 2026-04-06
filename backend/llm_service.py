@@ -45,6 +45,7 @@ class LLMService:
             return [q, q, q]
 
         today = datetime.now().strftime("%B %Y")
+        current_year = datetime.now().year
         prompt = f"""You are a search query optimizer. Given a claim to fact-check, generate exactly 3 short, targeted English search queries that would help verify it.
 
 Claim: "{text}"
@@ -53,11 +54,11 @@ Today's date: {today}
 Rules:
 - Each query must be 3-6 words maximum
 - Focus on the core subject, entity, and action
-- Make queries distinct (different angles: e.g., who/what/when)
-- Include the current year if time-sensitive
+- ALWAYS include "{current_year}" in at least 2 of the 3 queries to bias toward recent results
+- Make queries distinct (different angles: e.g., entity/source, event details, outcome)
 - Return ONLY a JSON array of 3 strings, nothing else
 
-Example output: ["Donald Trump president 2026", "US president April 2026", "47th president United States"]"""
+Example output: ["Iran IRGC Hormuz 2026", "Strait Hormuz shipping disruption 2026", "Iran blocks Hormuz strait"]"""
 
         try:
             loop = asyncio.get_event_loop()
@@ -90,7 +91,45 @@ Example output: ["Donald Trump president 2026", "US president April 2026", "47th
         q = " ".join(words[:5])
         return [q, q, q]
 
-    async def analyze(self, text, pattern_result, fact_check_result=None, live_news=None, ddg_query=None):
+    async def _classify_claim(self, text: str) -> str:
+        """
+        Uses the fast model to classify the type of claim.
+        Returns one of: news_headline | political_statement | statistic |
+                        whatsapp_forward | attributed_quote | general_claim
+        """
+        if not self.client:
+            return "general_claim"
+        prompt = f"""Classify this text into exactly one category. Return ONLY a JSON object with key 'type'.
+
+Categories:
+- news_headline: A factual news report or headline from a media outlet
+- political_statement: A statement, threat, or declaration by an official body (government, military, party)
+- statistic: A claim centered around a number, percentage, or dataset
+- whatsapp_forward: Sensationalist, uses emojis/caps/urgency, viral-style message
+- attributed_quote: A quote explicitly attributed to a named person
+- general_claim: Anything else
+
+Text: "{text}"
+
+Return: {{"type": "<one of the 6 categories>"}}"""  
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.0,
+                    response_format={"type": "json_object"},
+                    max_tokens=30,
+                ),
+            )
+            parsed = json.loads(response.choices[0].message.content.strip())
+            return parsed.get("type", "general_claim")
+        except Exception:
+            return "general_claim"
+
+    async def analyze(self, text, pattern_result, fact_check_result=None, live_news=None, ddg_query=None, claim_type: str = None):
         """
         Synthesizes all evidence layers into a single Groq master LLM call.
         Falls back to simulation if no API key is provided.
@@ -98,7 +137,19 @@ Example output: ["Donald Trump president 2026", "US president April 2026", "47th
         if not self.client:
             return await self._simulate_analyze(text, pattern_result, fact_check_result)
 
-        # Build context blocks
+        # If claim_type not pre-computed by caller, classify now
+        if claim_type is None:
+            claim_type = await self._classify_claim(text)
+        # Build type-specific verdict guidance
+        type_guidance = {
+            "political_statement": "CLAIM TYPE = political_statement: This is an official statement/threat/declaration by a named body. Even if the exact quote cannot be verified, if the organisation exists and the geopolitical context is confirmed, use 'Suspicious' not 'Unverified'. Reserve 'Unverified/Exaggerated' only if the attributed body is fictional or actively contradicted.",
+            "statistic": "CLAIM TYPE = statistic: Scrutinise the number carefully. Check if the source is named and credible. A statistic from 'a study' with no named author/journal should default to 'Suspicious'. Fabricated impossible numbers (e.g., >100%) should be 'Confirmed Fake / Misleading'.",
+            "whatsapp_forward": "CLAIM TYPE = whatsapp_forward: This exhibits viral/forward characteristics. Apply heightened scepticism. Emojis, urgency and shouting caps are manipulation markers. Require strong DDG confirmation to give 'Verified / Safe'.",
+            "attributed_quote": "CLAIM TYPE = attributed_quote: Verify whether the named person actually said this. If DDG has no record of the quote, it is likely fabricated — use 'Unverified / Exaggerated'. If confirmed, 'Verified / Safe'.",
+            "news_headline": "CLAIM TYPE = news_headline: Treat as a factual assertion. Use DDG to confirm the key facts (who, what, when). If confirmed, 'Verified / Safe'. If the event happened but a specific detail is off, 'Suspicious'.",
+            "general_claim": ""
+        }
+        claim_type_note = type_guidance.get(claim_type, "")
         fact_str = ""
         if fact_check_result:
             fact_str = (
@@ -116,10 +167,10 @@ Example output: ["Donald Trump president 2026", "US president April 2026", "47th
         else:
             news_str = "No related recent news found."
 
-        # DuckDuckGo live search — use the provided optimized query or fall back to raw text
+        # DuckDuckGo live search
         search_term = ddg_query or text
         loop = asyncio.get_event_loop()
-        ddg_str = await loop.run_in_executor(None, self._live_search, search_term, 3)
+        ddg_str = await loop.run_in_executor(None, self._live_search, search_term, 5)
 
         today = datetime.now().strftime("%B %Y")
 
@@ -130,6 +181,7 @@ You have access to four layers of evidence, listed in order of priority (highest
 3. Live News (NewsAPI Current Events)
 4. Stylistic Pattern Analysis (LIAR Dataset Model — LEAST TRUSTED, purely stylistic)
 
+{claim_type_note}
 USER INPUT TO VERIFY: "{text}"
 
 ---- EVIDENCE PACKET ----
@@ -148,19 +200,32 @@ LIVE WEB SEARCH (DuckDuckGo — Most Relevant & Current):
 
 CRITICAL REASONING RULES:
 - ORDINAL TITLES: In positional/tenure-based contexts (Presidents, Prime Ministers, CEOs, Champions), the person associated with the highest ordinal number in recent search results is the CURRENT holder of that title. Example: "47th president" = current president. Apply this principle globally for any country or organization.
+- SOURCE CREDIBILITY: Prioritize information in this order: (1) Official Government Portals (.gov, .nic.in, etc.), (2) Global News Agencies (BBC, Reuters, AP), (3) Reputable Encyclopedias (Wikipedia). Forcibly discount or flag information from anonymous blogs, unverified social media threads, or known misinformation domains.
+- CITATION RULE: In your 'explanation', you MUST explicitly cite your sources by name. Do not say "sources say"; say "According to [Official Source Name]..." or "As reported by [News Agency]...".
 - TRUST ORDER: Always trust DuckDuckGo live search over your own training knowledge. If DuckDuckGo says something is true today, accept it as ground truth.
 - RELEVANCE CHECK: If the Fact Check or Live News is about a different topic, discard it and rely solely on DuckDuckGo.
-- VERDICT RULES: DuckDuckGo confirms claim → "Verified / Safe". DuckDuckGo contradicts claim → "Unverified / Exaggerated". Fact-Check explicitly says 'False' for this exact claim → "Confirmed Fake / Misleading". Otherwise use stylistic suspicion score.
+- VERDICT RULES (apply in strict order):
+  1. Fact-Check explicitly says 'False' for THIS exact claim → "Confirmed Fake / Misleading"
+  2. DuckDuckGo DIRECTLY contradicts a core fact in the claim (e.g., says the person is alive, event didn't happen) → "Unverified / Exaggerated"
+  3. DuckDuckGo CONFIRMS the specific people, events, and key details in the claim → "Verified / Safe"
+  4. DuckDuckGo confirms the CONTEXT of the claim is real, but a specific detail or future statement cannot be confirmed (e.g., official body made a statement, the situation exists, but an exact quote or prediction is unverified) → "Suspicious"
+  5. No relevant evidence found, or claim is internally inconsistent → "Unverified / Exaggerated"
+  6. No strong evidence either way → rely on stylistic suspicion score
+
+- POLITICAL STATEMENTS RULE: If a claim is a political threat, warning, or future prediction attributed to a named official body (e.g., IRGC, NATO, US Government), AND DuckDuckGo confirms that body exists and the underlying geopolitical context is real, use "Suspicious" NOT "Unverified / Exaggerated". The claim is unverifiable by design (it's a political position), not false. Example: "Iran says X will never happen" → the Strait of Hormuz situation is real, so verdict = "Suspicious", not "Unverified/Exaggerated".
+
+- GENUINE NEWS RULE: If the verdict is "Verified / Safe" or "Likely Safe", set manipulation_intent to "None / Genuine Reporting" and target_audience to "General News Audience". Do NOT invent psychological intent for factual news.
 
 Return ONLY a valid JSON object with EXACTLY these keys (no markdown, no extra text):
 {{
     "verdict": "Confirmed Fake / Misleading" | "Verified / Safe" | "Unverified / Exaggerated" | "Suspicious" | "Likely Safe",
-    "explanation": "Clear explanation of the verdict based on relevant evidence",
-    "gemini_analysis": "2-3 sentence nuanced analysis of propaganda or trustworthiness based on the evidence",
-    "manipulation_intent": "What is the psychological goal? (e.g., Fear Mongering, Political Propaganda, Genuine News)",
-    "target_audience": "Who is this targeting? (e.g., General public, nationalist audiences)",
-    "news_correlation": "Does this twist or align with real recent events? (Yes/No with 1 sentence proof)",
-    "counter_narrative": "A 1-sentence logical counter-argument or debunking statement"
+    "explanation": "2-3 sentence summary that EXPLICITLY CITES sources by name (e.g., 'As confirmed by the BBC and ISRO official site...')",
+    "gemini_analysis": "Deep forensic analysis. If genuine news, confirm what makes it credible.",
+    "manipulation_intent": "'None / Genuine Reporting' for verified true news. Otherwise: the specific psychological goal (e.g., Fear Mongering, Political Propaganda).",
+    "target_audience": "'General News Audience' for verified true news. Otherwise: who this is targeting.",
+    "news_correlation": "Does this align with or contradict real events? (1 sentence with source name)",
+    "counter_narrative": "For fake/suspicious: a debunking statement. For verified news: 'This appears to be factual reporting.'",
+    "sources_used": ["list only sources you ACTUALLY cited in your explanation — from: 'duckduckgo', 'fact_check', 'news_api'. Leave empty [] if none were relevant."]
 }}
 """
 

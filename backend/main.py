@@ -6,9 +6,9 @@ from llm_service import LLMService
 from news_service import NewsService
 from fact_check_service import FactCheckService
 from propaganda_analyzer import analyze_propaganda_patterns
-import os
+import asyncio
 
-app = FastAPI(title="FakeN TruthSeeker API", version="3.0.0")
+app = FastAPI(title="FakeN TruthSeeker API", version="3.1.0")
 
 # Allow CORS for frontend
 app.add_middleware(
@@ -45,46 +45,51 @@ def read_root():
 @app.post("/api/verify")
 async def verify_message(request: VerifyRequest):
     """
-    Full compound AI verification pipeline:
-    1. TF-IDF Pattern Recognition (stylistic suspicion score from LIAR dataset)
-    2. Google Fact Check Explorer AP retrieval
-    3. Rule-based propaganda technique detection
-    4. Real-time news search for cross-reference
-    5. Gemini synthesis (verdict + propaganda deep analysis + Google Grounding)
+    Agentic RAG verification pipeline (v3.1):
+    1. Stylistic Pattern Recognition  (LIAR dataset + rule-based sensationalism)
+    2. Researcher LLM Query Generation (llama-3.1-8b-instant — 3 optimized queries)
+    3. Google Fact Check Explorer API
+    4. Rule-based propaganda signal detection
+    5. Live News cross-reference (NewsAPI)
+    6. Groq Master LLM synthesis (llama-3.3-70b-versatile + DuckDuckGo grounding)
     """
     text = request.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Text cannot be empty")
 
-    # Step 1: Stylistic pattern score (LIAR Dataset trained)
+    # Step 1: Stylistic pattern score
     pattern_result = detector.predict(text)
 
-    # Step 2: Researcher LLM — generate 3 smart, context-aware search queries
-    # Uses a fast small model (llama-3.1-8b-instant) to extract entities & intent
-    queries = await llm_service.generate_search_queries(text)
-    fact_query   = queries[0]   # Most precise — for official fact-check lookup
-    news_query   = queries[1]   # Broader — for live news article search
-    ddg_query    = queries[2]   # Open search — for DuckDuckGo web grounding
+    # Step 2: Researcher LLM + Claim Classifier in parallel
+    queries, claim_type = await asyncio.gather(
+        llm_service.generate_search_queries(text),
+        llm_service._classify_claim(text)
+    )
+    fact_query = queries[0]   # precise — for fact-check lookup
+    news_query = queries[1]   # broader — for live news
+    ddg_query  = queries[2]   # open — for DuckDuckGo grounding
 
-    print(f"AI Queries → Fact: '{fact_query}' | News: '{news_query}' | DDG: '{ddg_query}'")
+    print(f"Claim Type: {claim_type} | Queries → Fact: '{fact_query}' | News: '{news_query}' | DDG: '{ddg_query}'")
 
     # Step 3: Google Fact Check API
     fact_check_result = fact_check_service.search_claims(fact_query)
 
-    # Step 4: Rule-based propaganda pattern detection
+    # Step 4: Rule-based propaganda signal detection
     propaganda_result = analyze_propaganda_patterns(text)
 
     # Step 5: Real-time news cross-reference
     live_news = news_service.search_news(news_query, page_size=3)
 
-    # Step 6: Master LLM synthesis (Verdict + Deep Propaganda Analysis)
-    llm_response = await llm_service.analyze(text, pattern_result, fact_check_result, live_news, ddg_query)
+    # Step 6: Master LLM synthesis
+    llm_response = await llm_service.analyze(text, pattern_result, fact_check_result, live_news, ddg_query, claim_type)
 
     return {
         "pattern_analysis": pattern_result,
         "final_verdict": llm_response.get("verdict", "Unknown"),
         "explanation": llm_response.get("explanation", "No explanation provided."),
         "fact_check_match": fact_check_result is not None,
+        "sources_used": llm_response.get("sources_used", []),
+        "claim_type": claim_type,
 
         "propaganda_analysis": {
             **propaganda_result,
