@@ -844,3 +844,95 @@
   margin-bottom: 0.4rem;
   display: block;
 }
+
+/* ─── Language Detection Banner ──────────────────────── */
+
+.lang-banner {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  font-size: 0.7rem;
+}
+
+.lang-flag {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lang-label {
+  color: #a78bfa;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  flex: 1;
+  min-width: 0;
+}
+
+.lang-original-details {
+  width: 100%;
+  margin-top: 0.1rem;
+}
+
+.lang-original-details summary {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.lang-original-details summary:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+}
+
+.lang-original-details summary::before {
+  content: '▸';
+  font-size: 0.55rem;
+  transition: transform 0.2s;
+}
+
+.lang-original-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.lang-original-text {
+  margin: 0.4rem 0 0 0;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 0.45rem 0.65rem;
+  background: rgba(255,255,255,0.03);
+  border-left: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+}
+
+/* ─── Qualifier Badge ─────────────────────────────────── */
+
+.badge-qualifier {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1));
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.58rem;
+  cursor: help;
+  animation: qualifier-pulse 2s ease-in-out 1;
+}
+
+@keyframes qualifier-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+  50%  { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}

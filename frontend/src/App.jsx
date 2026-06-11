@@ -138,6 +138,20 @@ function VerdictCard({ data }) {
 
   return (
     <div className="verdict-card animate-fade-up">
+      {/* Language Detection Badge */}
+      {data.language_info?.was_translated && (
+        <div className="lang-banner">
+          <span className="lang-flag">🇮🇳</span>
+          <span className="lang-label">{data.language_info.translation_note}</span>
+          {data.language_info.original_text && (
+            <details className="lang-original-details">
+              <summary>View original</summary>
+              <p className="lang-original-text">{data.language_info.original_text}</p>
+            </details>
+          )}
+        </div>
+      )}
+
       {/* Top Banner */}
       <div className={`verdict-banner ${vc}`}>
         <span className={`verdict-label ${vc}`}>
@@ -146,6 +160,11 @@ function VerdictCard({ data }) {
         <div className="verdict-badges">
           {showFactCheck && <span className="badge badge-info">📖 Verified by Fact-Check API</span>}
           {showNews && <span className="badge badge-info">📡 Live News Cross-Check</span>}
+          {data.qualifiers_detected?.length > 0 && (
+            <span className="badge badge-qualifier" title="These qualifiers were independently verified">
+              🔍 Qualifier Check: {data.qualifiers_detected.join(', ')}
+            </span>
+          )}
         </div>
       </div>
 
@@ -336,7 +355,7 @@ export default function App() {
     {
       id: 'welcome',
       sender: 'bot',
-      text: "👋 Welcome to TruthSeeker v3. I can verify WhatsApp forwards, detect propaganda patterns, and cross-check claims against live news using Groq AI and DuckDuckGo. Try pasting a suspicious message!"
+      text: "👋 Welcome to TruthSeeker v3.2. Paste any suspicious claim, WhatsApp forward, or news headline — in English, Hindi (हिंदी), or Hinglish. I'll verify it using Groq AI, DuckDuckGo live search, and real-time news."
     }
   ])
   const [input, setInput] = useState('')
@@ -437,7 +456,7 @@ export default function App() {
                 <div className="thinking-indicator">
                   <div className="thinking-spinner" />
                   <span className="thinking-text">
-                    Analyzing patterns, searching live news, consulting Groq AI…
+                    Detecting language, analyzing claim, searching live news…
                   </span>
                 </div>
               </div>
@@ -450,7 +469,7 @@ export default function App() {
             <textarea
               id="verify-input"
               className="input-textarea"
-              placeholder="Paste a WhatsApp forward, headline, or suspicious claim to verify…"
+              placeholder="Paste a claim in English, Hindi (हिंदी), or Hinglish — WhatsApp forwards, news headlines, political statements…"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

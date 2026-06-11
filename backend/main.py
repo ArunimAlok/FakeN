@@ -6,7 +6,17 @@ from llm_service import LLMService
 from news_service import NewsService
 from fact_check_service import FactCheckService
 from propaganda_analyzer import analyze_propaganda_patterns
+from translation_service import TranslationService
 import asyncio
+import sys
+
+def safe_print(msg: str):
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or "utf-8"
+        print(msg.encode(enc, errors="replace").decode(enc))
+
 
 app = FastAPI(title="FakeN TruthSeeker API", version="3.1.0")
 
@@ -24,6 +34,7 @@ detector = PropagandaDetector()
 llm_service = LLMService()
 news_service = NewsService()
 fact_check_service = FactCheckService()
+translation_service = TranslationService()
 # ──────────────────────────────────────────────────────────────────────────────
 # Request / Response Models
 # ──────────────────────────────────────────────────────────────────────────────
@@ -45,43 +56,79 @@ def read_root():
 @app.post("/api/verify")
 async def verify_message(request: VerifyRequest):
     """
-    Agentic RAG verification pipeline (v3.1):
-    1. Stylistic Pattern Recognition  (LIAR dataset + rule-based sensationalism)
-    2. Researcher LLM Query Generation (llama-3.1-8b-instant — 3 optimized queries)
-    3. Google Fact Check Explorer API
-    4. Rule-based propaganda signal detection
-    5. Live News cross-reference (NewsAPI)
-    6. Groq Master LLM synthesis (llama-3.3-70b-versatile + DuckDuckGo grounding)
+    Agentic RAG verification pipeline (v3.2):
+    0. Language Detection + Translation  (Hindi/Hinglish → English via Groq)
+    1. Stylistic Pattern Recognition     (LIAR dataset + rule-based sensationalism, original text)
+    2. Qualifier Extraction              (llama-3.1-8b-instant — catches 'violent', 'secretly', etc.)
+    3. Researcher LLM Query Generation   (llama-3.1-8b-instant — 4 queries when qualifiers exist)
+    4. Google Fact Check Explorer API
+    5. Rule-based propaganda signal detection (runs on ORIGINAL text to catch Hindi signals)
+    6. Live News cross-reference         (NewsAPI)
+    7. Qualifier-specific DDG search     (dedicated search for qualifier verification)
+    8. Groq Master LLM synthesis         (llama-3.3-70b-versatile + DuckDuckGo grounding)
     """
-    text = request.text.strip()
-    if not text:
+    raw_text = request.text.strip()
+    if not raw_text:
         raise HTTPException(status_code=400, detail="Text cannot be empty")
 
-    # Step 1: Stylistic pattern score
+    # ── Step 0: Language Detection + Translation ─────────────────────────────
+    translation = await translation_service.detect_and_translate(raw_text)
+    text = translation["english_text"]          # all downstream steps use English
+    detected_language = translation["detected_language"]
+    was_translated = translation["was_translated"]
+
+    safe_print(f"Language: {detected_language} | Translated: {was_translated}")
+    if was_translated:
+        safe_print(f"  Original : {raw_text[:80]}")
+        safe_print(f"  Translated: {text[:80]}")
+
+
+    # ── Step 1: Stylistic pattern score (on English text) ────────────────────
     pattern_result = detector.predict(text)
 
-    # Step 2: Researcher LLM + Claim Classifier in parallel
-    queries, claim_type = await asyncio.gather(
-        llm_service.generate_search_queries(text),
+    # ── Step 2: Qualifier Extraction + Claim Classifier in parallel ──────────
+    qualifiers, claim_type = await asyncio.gather(
+        llm_service.extract_qualifiers(text),
         llm_service._classify_claim(text)
     )
-    fact_query = queries[0]   # precise — for fact-check lookup
-    news_query = queries[1]   # broader — for live news
-    ddg_query  = queries[2]   # open — for DuckDuckGo grounding
+    print(f"Claim Type: {claim_type} | Qualifiers: {qualifiers}")
 
-    print(f"Claim Type: {claim_type} | Queries → Fact: '{fact_query}' | News: '{news_query}' | DDG: '{ddg_query}'")
+    # ── Step 3: Qualifier-aware query generation ─────────────────────────────
+    queries = await llm_service.generate_search_queries(text, qualifiers if qualifiers else None)
+    fact_query = queries[0]    # precision query → fact-check
+    news_query = queries[1]    # broad query → live news
+    ddg_query  = queries[2]    # open query → DuckDuckGo
+    qualifier_query = queries[3] if len(queries) > 3 else None
 
-    # Step 3: Google Fact Check API
+    print(f"Queries | Fact: '{fact_query}' | News: '{news_query}' | DDG: '{ddg_query}'" +
+          (f" | Qualifier: '{qualifier_query}'" if qualifier_query else ""))
+
+    # ── Step 4: Google Fact Check API ────────────────────────────────────────
     fact_check_result = fact_check_service.search_claims(fact_query)
 
-    # Step 4: Rule-based propaganda signal detection
-    propaganda_result = analyze_propaganda_patterns(text)
+    # ── Step 5: Rule-based propaganda on ORIGINAL text (catches Hindi signals)
+    propaganda_result = analyze_propaganda_patterns(raw_text)
 
-    # Step 5: Real-time news cross-reference
+    # ── Step 6: Real-time news cross-reference ───────────────────────────────
     live_news = news_service.search_news(news_query, page_size=3)
 
-    # Step 6: Master LLM synthesis
-    llm_response = await llm_service.analyze(text, pattern_result, fact_check_result, live_news, ddg_query, claim_type)
+    # ── Step 7: Qualifier-specific DDG search (async, if qualifiers present) ─
+    qualifier_ddg_results = None
+    if qualifier_query and qualifiers:
+        loop = asyncio.get_event_loop()
+        qualifier_ddg_results = await loop.run_in_executor(
+            None, llm_service._live_search, qualifier_query, 3
+        )
+        print(f"Qualifier DDG results fetched for: '{qualifier_query}'")
+
+    # ── Step 8: Master LLM synthesis ─────────────────────────────────────────
+    llm_response = await llm_service.analyze(
+        text, pattern_result, fact_check_result, live_news, ddg_query,
+        claim_type,
+        qualifiers=qualifiers,
+        detected_language=detected_language,
+        qualifier_ddg_results=qualifier_ddg_results
+    )
 
     return {
         "pattern_analysis": pattern_result,
@@ -90,6 +137,15 @@ async def verify_message(request: VerifyRequest):
         "fact_check_match": fact_check_result is not None,
         "sources_used": llm_response.get("sources_used", []),
         "claim_type": claim_type,
+        "qualifiers_detected": qualifiers,
+
+        # Language metadata for the frontend badge
+        "language_info": {
+            "detected_language": detected_language,
+            "was_translated": was_translated,
+            "original_text": raw_text if was_translated else None,
+            "translation_note": translation.get("translation_note", ""),
+        },
 
         "propaganda_analysis": {
             **propaganda_result,

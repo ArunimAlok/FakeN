@@ -6,7 +6,7 @@ class FactCheckService:
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_FACT_CHECK_API_KEY")
         self.base_url = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
-        print(f"FactCheckService initialized — API Key: {'✓' if self.api_key else '✗'}")
+        print(f"FactCheckService initialized — API Key: {'OK' if self.api_key else 'N/A'}")
 
     def _relevance_score(self, query: str, claim_text: str) -> float:
         """

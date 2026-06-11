@@ -19,7 +19,7 @@ class NewsService:
     def __init__(self):
         self.has_newsapi = bool(NEWS_API_KEY)
         self.has_gnews = bool(GNEWS_API_KEY)
-        print(f"NewsService initialized — NewsAPI: {'✓' if self.has_newsapi else '✗'} | GNews: {'✓' if self.has_gnews else '✗'}")
+        print(f"NewsService initialized — NewsAPI: {'OK' if self.has_newsapi else 'N/A'} | GNews: {'OK' if self.has_gnews else 'N/A'}")
 
     def get_top_headlines(self, country="in", category=None, page_size=10):
         """

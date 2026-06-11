@@ -1,0 +1,481 @@
+[0] Normal === 
+[1] Normal ===  
+[2] Heading 1 === TABLE OF CONTENTS
+[3] Normal ===  
+[4] Normal === DECLARATION 
+[5] Normal === CERTIFICATE 
+[6] Normal === ACKNOWLEDGEMENTS 
+[7] Normal === ABSTRACT 
+[8] Normal === CHAPTER 1: 
+[9] Normal === Introduction
+[10] List Paragraph === Problem Introduction
+[11] List Paragraph === Motivation
+[12] List Paragraph === Project Objective
+[13] List Paragraph === Scope of the project
+[14] List Paragraph === Related previous work
+[15] List Paragraph === Organisation of report
+[16] List Paragraph === 
+[17] List Paragraph === 
+[18] Normal === CHAPTER 2: 
+[19] Normal === Software Requirement Specification
+[20] List Paragraph === Product Perspective
+[21] List Paragraph === System Interfaces
+[22] List Paragraph === Interfaces
+[23] List Paragraph === Hardware Interfaces
+[24] List Paragraph === Software Interfaces
+[25] List Paragraph === Communication Interfaces
+[26] List Paragraph === Memory Constraints
+[27] List Paragraph === Operation
+[28] List Paragraph === Site Adaptation Requirements
+[29] List Paragraph === Product Functions
+[30] List Paragraph === User Characteristics
+[31] List Paragraph === Constraints
+[32] List Paragraph === Assumptions and Dependencies
+[33] List Paragraph === Apportioning of requirements
+[34] List Paragraph === Use case model
+[35] List Paragraph === Use case diagram
+[36] List Paragraph === Use case scenario
+[37] List Paragraph === Sequence Diagram
+[38] Normal === CHAPTER 3:  
+[39] Normal === System Design
+[40] List Paragraph === Architecture Diagrams
+[41] List Paragraph === Class Diagrams
+[42] List Paragraph === Data Flow Diagram
+[43] List Paragraph === Activity Diagram
+[44] List Paragraph === ER Diagram
+[45] List Paragraph === Database Schema Diagrams
+[46] Normal === 
+[47] Normal === 
+[48] Normal === CHAPTER 4:  
+[49] Normal === Implementation and Results
+[50] List Paragraph === Software and Hardware Requirements
+[51] List Paragraph === Assumptions and Dependencies
+[52] List Paragraph === Constraints
+[53] List Paragraph === Implementation Details
+[54] List Paragraph === Snapshots of Interfaces
+[55] List Paragraph === Test Cases
+[56] List Paragraph === Results
+[57] Normal === 
+[58] Normal === CHAPTER 5:
+[59] Normal ===             Conclusion and Future Scope
+[60] List Paragraph === Conclusion
+[61] List Paragraph === Future Scope
+[62] Normal === 
+[63] Normal === 
+[64] Normal === 
+[65] Normal === 
+[66] Normal === 
+[67] Normal === 
+[68] Normal === 
+[69] Normal === 
+[70] Normal === 
+[71] Normal === 
+[72] Normal === 
+[73] Normal === 
+[74] Normal === 
+[75] Normal === 
+[76] Normal === 
+[77] Normal === 
+[78] Normal === 
+[79] Normal === 
+[80] Normal === 
+[81] Normal === 
+[82] Normal === 
+[83] Normal === 
+[84] Normal === 
+[85] Normal === 
+[86] Normal === 
+[87] Normal === 
+[88] Normal === 
+[89] Normal === 
+[90] Normal === 
+[91] Normal === 
+[92] Normal === 
+[93] Normal === 
+[94] Normal === 
+[95] Normal === 
+[96] Normal === 
+[97] Normal === LIST OF FIGURES
+[98] Normal === Figure 1: Architecture Diagram
+[99] Normal === Figure 2: Data Flow Diagram
+[100] Normal === LIST OF ABBREVIATIONS
+[101] Normal === API - Application Programming Interface
+AI - Artificial Intelligence
+LLM - Large Language Model
+RAG - Retrieval-Augmented Generation
+TF-IDF - Term Frequency-Inverse Document Frequency
+UI - User Interface
+[102] Normal === 
+[103] Normal === 
+[104] Normal === 
+[105] Normal === 
+[106] Normal === 
+[107] Normal === 
+[108] Normal === 
+[109] Normal === 
+[110] Normal === 
+[111] Normal === 
+[112] Normal === 
+[113] Normal === 
+[114] Normal === 
+[115] Normal === 
+[116] Normal === 
+[117] Normal === 
+[118] Normal === 
+[119] Normal === 
+[120] Normal === 
+[121] Normal === 
+[122] Normal === 
+[123] Normal === 
+[124] Normal === 
+[125] Normal === 
+[126] Normal === 
+[127] Normal === 
+[128] Normal === 
+[129] Normal === 
+[130] Normal === 
+[131] Normal === 
+[132] Normal === 
+[133] Normal === 
+[134] Normal === 
+[135] Normal === 
+[136] Normal === 
+[137] Normal === 
+[138] Normal === SCHOOL OF COMPUTER APPLICATIONS AND 
+[139] Normal === TECHNOLOGY  
+[140] Normal === GALGOTIAS UNIVERSITY, GREATER NOIDA  
+[141] Normal ===  
+[142] Normal === CANDIDATE’S DECLARATION 
+[143] Normal ===  
+[144] Normal === We hereby certify that the work which is being presented in the project, entitled “TruthSeeker: Fake News Detection using RAG & Pattern Recognition” in partial fulfilment of the requirements for the award of the BCA (Bachelor of Computer Application) submitted in the School of Computer Applications and Technology of Galgotias University, Greater Noida, is an original work carried out during the period of 2025-26, under the supervision of Dr Pawan Mishra, School of Computer Applications and Technology , Galgotias University, Greater Noida. 
+[145] Normal === The matter presented in the project has not been submitted by us for the award of any other degree of this or any other places. 
+[146] Normal ===                 Arunim Alok(23SCSE1040793) 
+[147] Normal === Ankit Yadav(23SCSE1040889) 
+[148] Normal === Shubham Yadav(23SCSE1040888) 
+[149] Normal ===  
+[150] Normal ===    
+[151] Normal === This is to certify that the above statement made by the candidates is correct to the best of my knowledge. 
+[152] Normal === 	 	   	 	 	 Dr Pawan Mishra 
+[153] Normal === 	         	 	 	Assistant Professor 
+[154] Heading 1 === 
+[155] Heading 1 === 
+[156] Normal === 
+[157] Heading 1 === 
+[158] Normal === 
+[159] Heading 1 === CERTIFICATE 
+[160] Normal ===  
+[161] Normal === This is to certify that Project Report entitled TruthSeeker: Fake News Detection using RAG & Pattern Recognition which is submitted by Arunim Alok, Ankit Yadav, Shubham 
+[162] Normal === Yadav in partial fulfillment of the requirement for the award of degree BCA in Department of Computer Applications and Technology, Galgotias University, Greater Noida, India, is a record of the candidates own work carried out by them under my supervision. The matter embodied in this thesis is original and has not been submitted for the award of any other degree.  
+[163] Normal ===  
+[164] Normal ===  
+[165] Normal ===  
+[166] Normal === Signature of Examiner(s) 	 	 	 	 	             Signature of Supervisor(s) 
+[167] Normal ===  	 	 	 	 	   
+[168] Normal ===  
+[169] Normal ===  
+[170] Normal ===  	 	 	 	  
+[171] Normal === Date:    April, 2026
+[172] Normal === Place: Greater Noida  
+[173] Heading 1 === ACKNOWLEDGEMENTS
+[174] Normal ===  
+[175] Normal === We would like to express our profound gratitude to our project supervisor, Dr. Pawan Mishra, for their invaluable guidance, insightful feedback, and unwavering support throughout the duration of this project. Their expertise and patience were instrumental in navigating the challenges of this research. 
+[176] Normal === Our sincere thanks also go to the faculty and staff of the School of Computer Applications and Technology at Galgotias University for providing the necessary resources and a conducive environment for learning and research. 
+[177] Normal === We are deeply indebted to the open-source community and technology providers. This project would not have been possible without the foundational work and tools provided by Meta AI team for their powerful large language models, the developers of Scikit-Learn for accessible machine learning toolkits, and the creators of FastAPI for enabling high-performance backend development. We also extend our appreciation to the React and Vite communities for their robust frontend frameworks that made our interface development seamless. 
+[178] Normal === The collective knowledge shared through academic papers, technical documentation, and online forums has been an endless source of inspiration and solutions. 
+[179] Normal === We extend our appreciation to our colleagues and peers for their constructive discussions, moral support, and for fostering a collaborative spirit that made this arduous journey enjoyable. 
+[180] Normal === Finally, and most importantly, we wish to thank our families for their unconditional love, endless encouragement, and immense patience throughout our studies and this project. Their belief in us has been our greatest strength. 
+[181] Normal ===  
+[182] Normal ===  
+[183] Normal === Arunim Alok (23SCSE1040793)                                                                         Dr. Pawan Mishra 
+[184] Normal === Shubham Yadav (23SCSE1040888)                                                                    Assistant Professor
+[185] Normal === Ankit Yadav (23SCSE1040889)
+[186] Heading 1 === ABSTRACT 
+[187] Normal ===  
+[188] Normal === The proliferation of misinformation, particularly through encrypted messaging platforms like WhatsApp, presents a significant socio-technical challenge in regions like India. Traditional fact-checking is manual and unscalable, while standalone AI models are prone to hallucinations and lack contextual grounding. This project, TruthSeeker, proposes and implements a novel Compound AI System that synergistically integrates three distinct technological layers: 1) A Machine Learning module for forensic stylistic analysis to detect manipulative language patterns, 2) A Retrieval-Augmented Generation (RAG) engine anchored to a curated, localized knowledge base to ensure factual grounding, and 3) A state-of-the-art Large Language Model (Grok Llama 3.1 & 3.3) for sophisticated, evidence-based reasoning and explanation generation. The system is encapsulated within a modern full-stack application featuring a React-based glassmorphic UI and a FastAPI backend. By moving beyond monolithic AI approaches, TruthSeeker achieves a critical balance between automation speed, analytical depth, and veracity, effectively identifying not just blatant falsehoods but also nuanced exaggerations in viral content, thereby offering a scalable prototype for next-generation digital literacy tools. 
+[189] Normal ===  
+[190] Normal ===  
+[191] Normal ===      
+[192] Normal ===   
+[193] Normal === 
+[194] Normal === 
+[195] Normal === 
+[196] Normal === 
+[197] Normal === 
+[198] Normal === 
+[199] Normal === CHAPTER 1 
+[200] Heading 1 === INTRODUCTION 
+[201] Heading 2 === Problem Introduction 
+[202] Normal === The digital age has brought an explosion of information, but it has also facilitated the unprecedented spread of fake news, propaganda, and misinformation. Determining the credibility of claims made on social networks and encrypted messaging platforms has become a labor-intensive and difficult pro
+[203] Heading 2 === Motivation
+[204] Normal === The motivation behind TruthSeeker is driven by the societal harm caused by viral misinformation, particularly sensationalist 'WhatsApp Forwards' that incite panic, distribute false medical advice, or push political propaganda. Traditional fact-checking is slow and manual; there is a critical need for an automated, skeptical AI that can verify claims in real-time.
+[205] Heading 2 === Project Objective 
+[206] Normal === The motivation for this project is multi-faceted, driven by both technological and societal imperatives: 
+[207] Normal === Societal Impact: To combat the erosion of public trust in institutions, media, and science, and to empower individuals with tools to critically assess the information they consume. 
+[208] Normal === Technological Curiosity: To explore and validate a hybrid AI architecture that mitigates the key weaknesses of standalone LLMs (like hallucination) by grounding them in retrievable facts. 
+[209] Normal === Research Advancement: To contribute to the field of NLP and misinformation research by demonstrating the efficacy of combining parametric knowledge (pattern recognition) with non-parametric knowledge (RAG) for a complex classification task. 
+[210] Heading 2 === Scope of the project
+[211] Normal === The system accepts text inputs (such as headlines or forwarded messages) and processes them through multiple modules: stylistic analysis (ML), LLM query generation, fact-check tool lookup, and live news searching. The final aggregation is performed by a Master LLM (over Groq) and the results are displayed via a responsive web application. The scope excludes video and image forensics deep-fake detection.
+[212] Normal === 
+[213] Heading 2 === Related previous work
+[214] Normal === Previous approaches to fake news detection relied either purely on natural language classification (e.g., training a model on the LIAR dataset) or manual fact-checking databases. While classification models can detect stylistic bias, they hallucinate facts. Recent advancements in RAG (Retrieval-Augmented Generation) have allowed AI to consult external knowledge bases, enabling systems to ground LLM reasoning in verified facts. TruthSeeker builds upon these concepts by hybridizing stylistic ML with real-time API integrations.
+[215] List Paragraph === Organisation of the report
+[216] Normal === Chapter 1 introduces the project, its objectives, and scope. Chapter 2 details the Software Requirement Specification (SRS), outlining the functional, interface, and structural requirements of the TruthSeeker system, including use cases and sequence concepts. Chapter 3 covers the System Design, illustrating the architectural diagrams, data flows, and class models underlying the Compound AI framework. Chapter 4 documents the Implementation Details and Results, outlining hardware/software configurations and executing specific verification test cases. Finally, Chapter 5 presents the Conclusion, providing performance evaluations and discussing future avenues of enhancement for the TruthSeeker tool.
+[217] Normal === 
+[218] Normal === 
+[219] Normal === 
+[220] Normal === 
+[221] Normal === 
+[222] Normal === 
+[223] Normal === 
+[224] Normal === 
+[225] Normal === 
+[226] Normal === 
+[227] Normal === CHAPTER 2 
+[228] Heading 1 === Software Requirement Specification
+[229] Heading 2 === Product Perspective
+[230] Normal === TruthSeeker is a self-contained web application employing a client-server architecture. The backend acts as a central orchestrator that communicates with several external third-party APIs (Groq LLM, Google Fact Check, NewsAPI/GNews) and serves a React frontend. It sits in the marketplace as a specialized verification tool, similar to standalone fact-checking extensions, but distinct in its compound AI approach.
+[231] Heading 2 === System Interfaces 
+[232] Normal === The system interfaces primarily with RESTful external services over the internet. The backend interacts with the Google Fact Check Explorer API to retrieve verified claims, DuckDuckGo for live web search grounding, NewsAPI/GNews for contextual news articles, and Groq's cloud APIs for executing open-source large language models (Llama 3).
+[233] Normal ===  
+[234] Heading 2 === Interfaces
+[235] Normal === The primary user interface is a web browser. The logic of the interface includes a live news feed panel, a central chat-style claim verifier input, and a deep-analysis panel. The design optimizes for immediate visual feedback utilizing color-coded risk markers (Safe, Suspicious, Confirmed Fake) to ease cognitive load.
+[236] Heading 2 === Hardware Interfaces
+[237] Normal === The system has no specific hardware interface requirements beyond a standard network interface card for internet access to external APIs.
+[238] List Paragraph === Software Interfaces
+[239] Normal === Target applications and libraries include:
+[240] List Paragraph === Name: FastAPI, Version: ^0.100.0, Source: Pypi - For serving REST endpoints.
+[241] List Paragraph === Name: Uvicorn, Version: ^0.23, Source: Pypi - ASGI web server.
+[242] List Paragraph === Name: Scikit-learn, Version: ^1.3.0, Source: Pypi - For the Random Forest stylistic pattern model.
+[243] List Paragraph === Name: React, Version: ^18.2, Source: NPM - Core UI framework.
+Interfaces are defined in JSON message format over HTTP/HTTPS.
+[244] Normal === 
+[245] Normal === 
+[246] List Paragraph === Communications Interfaces
+[247] Normal === The frontend communicates with the backend via standard HTTP/HTTPS protocols on port 8000 using JSON payloads. CORS (Cross-Origin Resource Sharing) is configured to allow integration from the web origin.
+[248] List Paragraph === Memory Constraints
+[249] Normal === The system requires at least 1GB of primary memory (RAM) allocated to the backend process, primarily to hold the loaded Scikit-Learn TF-IDF vectorizer and Random Forest propaganda model (.pkl file) in memory for rapid inference.
+[250] List Paragraph === Operations
+[251] Normal === Normal operations include interactive web requests submitted by end users. Unattended operations are minimal, as the system acts mostly as a synchronous pipeline per verification request. The underlying model can be periodically retrained locally on updated 'seed_data.json'.
+[252] List Paragraph === Site Adaptation Requirements
+[253] Normal === Deployment requires setting valid API Keys (GROQ_API_KEY, GOOGLE_FACT_CHECK_API_KEY, NEWS_API_KEY) in a localized.env configuration file to adapt the system to run on any particular host server.
+[254] List Paragraph === Product Functions
+[255] List Paragraph === 
+[256] List Paragraph === Claim Verification: Ingests user text and coordinates a series of authenticity checks.
+[257] List Paragraph === Stylistic Analysis: Generates a suspicion score using linguistic markers (emojis, all-caps, clickbait).
+[258] List Paragraph === RAG Lookup: Queries the Google Fact Check API for official debunking’s.
+[259] List Paragraph === Live Context: Retrieves top headlines from News APIs.
+[260] List Paragraph === Deep Analysis Dashboard: Consolidates outputs into an easy-to-read, visually distinct web report.
+[261] Normal === 
+[262] List Paragraph === User Characteristics
+[263] Normal === The intended users are journalists, researchers, and general public members looking to verify information. Users are assumed to have basic computer literacy to operate a web browser and input text. The user interface must simplify complex LLM analysis into actionable, non-technical verdicts.
+[264] Normal === 
+[265] Normal === 
+[266] Normal === 
+[267] Normal === 
+[268] List Paragraph === Constraints
+[269] List Paragraph === 
+[270] List Paragraph === API Rate Limits: The system is constrained by the request caps of Groq API, NewsAPI, and Google Fact Check API.
+[271] List Paragraph === Execution Speed: The synchronous orchestration must resolve fast enough to maintain web user engagement (typically under 10 seconds).
+[272] List Paragraph === Language limitations: Primarily configured and trained for English language claims.
+[273] Normal === 
+[274] List Paragraph === Assumptions and Dependencies
+[275] Normal === It is assumed that the external fact-checking and news APIs remain publicly accessible and maintain their current structural responses. The system architecture depends heavily on the availability of the Groq inference endpoints to function.
+[276] List Paragraph === Apportioning of Requirements
+[277] Normal === Phase 1 covers the text-based stylistics and single-claim verification endpoints. Future iterations may scale to include image analysis, automatic WhatsApp Bot integration, or scheduled bulk processing of social media feeds.
+[278] List Paragraph === Use Case Model
+[279] Normal === Actor: General User
+[280] Normal === System Actor: External APIs (Groq, Factcheck, News)
+[281] List Paragraph === Use Case Diagram
+[282] Normal === A diagram is omitted from text, but logically involves:
+[283] List Paragraph === [Submit claim] <<includes>>[Query database]
+[284] List Paragraph === [Submit Claim] <<includes>> [Analyse Pattern]
+[285] List Paragraph === [Submit Claim] <<includes>> [Synthesize Verdict]
+[286] Normal === 
+[287] List Paragraph === Use Case Scenario
+[288] Normal === Use case number: UC-01.
+[289] Normal === Application: TruthSeeker Verification Pipeline.
+[290] Normal === Use case name: Verify suspicious claim.
+[291] Normal === Use case description: the user submits a text string to be verified by the system compound AI architecture.
+[292] Normal === Primary actor: End user.
+[293] Normal === Precondition: User is connected to the web client; Backend has valid API credentials loaded.
+[294] Normal === Trigger: User clicks ‘verify’ button with text populated.
+[295] Normal === 
+[296] Normal === Basic Flow:
+[297] List Paragraph === User enters text and clicks verify.
+[298] List Paragraph === Backend applies ML Stylistic feature analysis.
+[299] List Paragraph === Backend requests researcher queries from Llama-3.1.
+[300] List Paragraph === Backend fetches facts from Google and DDG.
+[301] List Paragraph === Master LLM (Llama-3.3) analyses facts against text.
+[302] List Paragraph === UI presents the color-coded verdict.
+[303] Normal === Alternate flows: 
+[304] List Paragraph === External API timeout: system falls back to offline ML stylistic heuristics.
+[305] Normal === 
+[306] List Paragraph === Sequence Diagram
+[307] Normal === Sequence for verification:
+[308] List Paragraph === User -> React Client: Submit Text
+[309] List Paragraph === React Client -> FastAPI: POST /api/verify
+[310] List Paragraph === FastAPI -> Scikit-Learn: predict_proba()
+[311] List Paragraph === FastAPI -> Groq: generate_search_queries()
+[312] List Paragraph === FastAPI -> Google Fact Check: search_claims()
+[313] List Paragraph === FastAPI -> NewsAPI: search_news()
+[314] List Paragraph === FastAPI -> Groq: analyze() final synthesis
+[315] List Paragraph === FastAPI -> React Client: Return JSON Results
+[316] List Paragraph === React Client -> User: Display Verdict Dashboard
+[317] Normal === 
+[318] Normal === 
+[319] Normal === 
+[320] Normal === 
+[321] Normal === 
+[322] Normal === 
+[323] Normal === CHAPTER 3
+[324] Normal === SYSTEM DESIGN 
+[325] Normal ===  
+[326] Heading 2 === Architecture diagrams
+[327] Normal === The TruthSeeker system follows a modern Compound AI Architecture, decoupling the presentation layer (Frontend) from the AI Orchestration layer (Backend), and relying on External Intelligence via APIs.
+[328] Normal === [Figure 3.1: Architecture Diagram] - A visual representation of the React client sending requests to the FastAPI backend, which fans out to Scikit-Learn, Google Fact Check API, NewsAPI, and Groq LLM before synthesizing a verdict.
+[329] Normal === 
+[330] Heading 2 === Class diagrams
+[331] Normal === The backend relies on key modular classes:
+1. LLMService: Manages interactions with Groq and DuckDuckGo.
+2. FactCheckService: Manages requests to Google Fact Check Explorer.
+3. NewsService: Manages live news retrieval from NewsAPI/GNews.
+4. PropagandaDetector: Encapsulates the Scikit-learn TF-IDF pipeline and RandomForest model.
+[332] Heading 2 === Data Flow Diagram
+[333] Normal === Level 0 DFD: Context Diagram
+[334] Normal === The Context Diagram represents the entire TruthSeeker AI system as a single, high-level process, highlighting its interactions with external entities.
+[335] Normal === Process 0.0 (TruthSeeker System): The central compound AI application that acts as the primary orchestrator.
+[336] Normal === External Entity 1 (End User): The human user interacting with the React web interface.
+[337] Normal === Data In: The user inputs a raw text string (Claim), representing a news headline, WhatsApp forward, or political statement.
+[338] Normal === Data Out: The system outputs a compiled Verdict Dashboard Payload (JSON containing the color-coded verdict, fact-checker sources, AI explanations, and risk bars) back to the user.
+[339] Normal === External Entity 2 (External APIs - Groq, Google Fact Check, NewsAPI, DDG): Third-party intelligence tools.
+[340] Normal === Data In: The system sends optimized Search Queries and Prompt Packets for contextual research.
+[341] Normal === Data Out: The APIs return structured JSON containing Live News Summaries, Fact-Check Debunks, and Deep LLM Analysis.
+[342] Normal === Level 1 DFD: Sub-Process Breakdown
+[343] Normal === The Level 1 Diagram breaks down the central TruthSeeker system (Process 0.0) into its core functional sub-processes, revealing how the Claim creates parallel streams of data analysis.
+[344] Normal === Process 1.0 (Claim Validation & Routing):
+[345] Normal === Input: Receives Raw Text Claim from the user.
+[346] Normal === Action: Cleans the text, maps route handlers, and dispatches the text simultaneously to the ML layer and the RAG (Retrieval-Augmented Generation) layer.
+[347] Normal === Process 2.0 (Stylistic Feature Scoring):
+[348] Normal === Input: Receives Cleaned Text from Process 1.0.
+[349] Normal === Action: Interacts with the local propaganda_model.pkl data store (Random Forest / TF-IDF) and applies rule-based sensationalism heuristics (emoji count, caps ratio).
+[350] Normal === Output: Pushes a Suspicion Risk Score (0.0 - 1.0) down the pipeline for final aggregation.
+[351] Normal === Process 3.0 (Dynamic Query Generation):
+[352] Normal === Input: Receives Cleaned Text.
+[353] Normal === Action: Groq’s fast Llama-3.1-8b converts the raw text into three highly optimized Search Queries (Fact Query, Open Web Query, Live News Query).
+[354] Normal === Process 4.0 (RAG Context Aggregation):
+[355] Normal === Input: Uses the optimized queries from Process 3.0 to hit three external endpoints: Google Fact Check Tools, DuckDuckGo Search, and NewsAPI.
+[356] Normal === Action: Collects live web snippets, official debunk reviews, and related recent news headlines.
+[357] Normal === Output: Packages the findings into a structured Aggregated Evidence Packet.
+[358] Normal === Process 5.0 (Master Verdict Synthesis):
+[359] Normal === Input: Receives the original Claim, the Suspicion Risk Score (from 2.0), and the Aggregated Evidence Packet (from 4.0).
+[360] Normal === Action: Compiles all inputs into a massive contextual prompt and invokes the master LLM (Groq Llama-3.3-70b). Applying deep critical reasoning, the model cross-references stylistic risk against verifiable intelligence.
+[361] Normal === Output: Generates a Final Verdict Data object containing the human-readable explanation, intent analysis, and risk categorization.
+[362] Normal === Process 6.0 (Format Unified Response):
+[363] Normal === Input: Final verdict data.
+[364] Normal === Action: Binds the AI output with the raw News and Fact-Check schemas.
+[365] Normal === Output: Transmits the Verdict Dashboard JSON via REST back to the React UI for visual rendering.
+[366] Normal === 
+[367] Heading 2 === Activity Diagram
+[368] Normal === Start -> User submits claim -> Calculate stylistics score -> Concurrently fetch Live News + Fetch Google Facts + Generate DuckDuckGo Queries -> Master LLM analyses context against claim -> End -> Display styled visual cards on Frontend.
+[369] Heading 2 === ER Diagram
+[370] Normal === While TruthSeeker does not persist user history in a traditional relational database, the logical entity relationship involve:
+Claim Entity -> analyzed by -> Verification Entity (includes confidence score, category, final rating).
+Verification Entity -> derived from -> Evidence Entities (Facts, News Articles, Pattern Scores).
+[371] Heading 2 === Database schema diagrams
+[372] Normal === The current version utilizes stateless endpoints for inference and does not currently maintain a relational database schema. The 'seed_data.json' serving as training data utilizes a NoSQL document structure where each record has fields: 'text' (string) and 'label' (string).
+[373] Normal === 
+[374] Normal === 
+[375] Normal === 
+[376] Normal === 
+[377] Normal === 
+[378] Normal === 
+[379] Normal === 
+[380] Normal === 
+[381] Normal === 
+[382] Normal === 
+[383] Normal === 
+[384] Normal === 
+[385] Normal === 
+[386] Normal === 
+[387] Normal === 
+[388] Normal === 
+[389] Normal === Chapter 4
+Implementation and Results
+[390] Normal === 
+[391] Heading 2 === Software and Hardware Requirements
+[392] Normal === Software: Python 3.10+, Node.js (for React), FastAPI, Scikit-learn, React 18, Vite. Access to standard API(Groq,Google)
+Hardware: Minimal client-side requirements (any modern web browser). Minimum 2GB RAM server environment to load the pkl ML model into memory.
+[393] Heading 2 === Assumptions and dependencies
+[394] Normal === The primary dependency is latency and availability of the Groq (Llama-3) API infrastructure. It assumes claims are provided in textual English and that the DuckDuckGo live search mechanism is unblocked.
+[395] Heading 2 === Constraints
+[396] Normal === Usage limitations on free-tier APIs constrain the throughput. The system relies on DuckDuckGo and Google; if either aggressively rate-limits requests, fallback logical paths are initiated degrading overall system intelligence.
+[397] Heading 2 === Implementation Details
+[398] Normal === Implementation relies on Python asyncio in the FastAPI application to prevent I/O blocking while waiting for external facts. On the frontend, React tracks state for multiple components such as the News feed, Verdict cards, and deep-analysis metrics, utilizing CSS for glassmorphic visual indicators.
+[399] Normal === 
+[400] Normal === 
+[401] Normal === 
+[402] Normal === 
+[403] Normal === 
+[404] Normal === 
+[405] Normal === 
+[406] Normal === 
+[407] Normal === 
+[408] Normal === 
+[409] List Paragraph === Snapshots of Interfaces
+[410] List Paragraph === 
+[411] List Paragraph === TruthSeeker Output Card: Displays 'Unverified/Exaggerated' with Risk Bar.
+[412] Normal === 
+[413] Normal === 
+[414] Normal === 2. Deep Analysis Panel: Provides AI rationale.
+[415] Normal === 
+[416] Normal === 
+[417] Normal === 
+[418] Normal === 
+[419] Normal === 
+[420] Normal === 
+[421] Normal === 
+[422] Normal === 3. Live News Panel: Right-hand sidebar pulling current India/Global news.
+[423] Normal === 
+[424] Normal === 
+[425] Normal === 
+[426] Normal === 
+[427] List Paragraph === Test Cases
+[428] Normal === TC1: Verified News Claim. Input: 'ISRO launched new vehicle'. Output expected: Verified/Safe.
+TC2: Heavily Manipulated Claim. Input: '!!🚨 SHOCKING REVEALED: GOVERNMENT SECRET LEAKED!!'. Output expected: Propaganda signals triggered, Suspicious or Fake.
+TC3: Disproved Claim. Input: A known debunked fact from Google Fact Check. Output expected: Confirmed Fake / Misleading.
+[429] List Paragraph === Results
+[430] Normal === By combining machine learning pattern scoring with RAG, the TruthSeeker tool drastically outperformed simple classification systems by achieving near-zero 'Fact Hallucinations'. The system effectively processes stylistic cues separately from verifiable facts.
+[431] Normal === 
+[432] Normal === 
+[433] Normal === 
+[434] Normal === 
+[435] Normal === 
+[436] Normal === 
+[437] Normal === 
+[438] Normal === 
+[439] Normal === 
+[440] Normal === 
+[441] Normal === 
+[442] Normal === 
+[443] Normal === 
+[444] Normal === 
+[445] Normal === 
+[446] Normal === 
+[447] Normal === 
+[448] Normal === 
+[449] Normal === 
+[450] Normal === CHAPTER 5
+[451] Normal ===  
+[452] Heading 1 === CONCLUSION AND FUTURE SCOPE 
+[453] Normal ===  
+[454] List Paragraph === Conclusion 
+[455] Normal === This project successfully designed, implemented, and validated a hybrid fake news detection system that effectively addresses key limitations of existing approaches. By integrating a Agentic Retrieval-Augmented Generation (RAG) pipeline with a Pattern Recognition model, the system achieves a synergistic balance between evidence-based verification and stylistic analysis. 
+[456] Normal === TruthSeeker project successfully demonstrates the viability and superiority of a Compound AI approach to the complex problem of automated misinformation verification. By strategically layering a fast ML filter with a grounded RAG+LLM reasoning engine, the system effectively mitigates the core weaknesses of individual techniques—namely, the superficiality of classic ML and the hallucination tendency of pure LLMs. The developed prototype proves capable of handling the nuanced nature of real-world "WhatsApp hoaxes," including the critical task of distinguishing exaggerated claims from completely false ones. The integration into a cohesive, user-friendly full-stack application underscores the project's value as both a research artifact and a potential tool for practical deployment. 
+[457] Normal ===  
+[458] List Paragraph === Future Scope 
+[459] Normal === To enhance the system's robustness, scalability, and real-world applicability, the following extensions are proposed: 
+[460] Normal === Multimodal Verification: Integrate modules for image and video analysis (e.g., reverse image search, detection of deepfakes, OCR for text in memes) to handle the multimodal nature of modern misinformation. 
+[461] Normal === Advanced Propagation Analysis: Incorporate network/graph analysis features to track the spread of a claim, identify potential amplification bots or coordinated inauthentic behavior, and use virality patterns as an additional signal for risk assessment. 
+[462] Normal === Adversarial Robustness & Continuous Learning: Implement mechanisms for continuous model retraining using new, labeled examples of deceptive content to stay ahead of evolving adversarial tactics. This could include humanin-the-loop feedback from users flagging incorrect verdicts. 
+[463] Normal === Deployment & Localization: Package the system for broader deployment (e.g., as a browser extension or a Telegram/WhatsApp bot API) and localize the knowledge base and models for other linguistic and regional contexts beyond the initial focus. 
+[464] Normal ===  

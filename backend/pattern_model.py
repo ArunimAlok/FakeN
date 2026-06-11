@@ -122,13 +122,29 @@ class PropagandaDetector:
             if caps_ratio > 0.4:  # >40% caps = shouting
                 score += caps_ratio * 0.50
 
-        # 4. Hard clickbait keywords (high weight)
+        # 4. Hard clickbait keywords (high weight) — English
         hard_clickbait = ['SHOCKING', 'BREAKING', 'EMERGENCY ALERT', 'MUST READ', 'FORWARD THIS',
                           'DOCTORS HATE', 'SECRET REVEALED', 'GOVERNMENT HIDING', 'BANNED VIDEO',
                           'SHARE BEFORE DELETED', 'WAKE UP', "WON'T BELIEVE"]
         for kw in hard_clickbait:
             if kw in t.upper():
                 score += 0.25
+
+        # 4b. Hindi/Hinglish clickbait keywords (Devanagari)
+        hindi_clickbait = ['सावधान', 'खतरा', 'सच्चाई', 'वायरल', 'ध्यान दें', 'सरकार छुपा',
+                           'चौंकाने वाला', 'बड़ी खबर', 'तुरंत', 'आगे भेजें', 'शेयर करें']
+        for kw in hindi_clickbait:
+            if kw in t:
+                score += 0.20
+
+        # 4c. Hinglish clickbait keywords (Roman-script)
+        hinglish_clickbait = ['dhyan do', 'khatre mein', 'viral karo', 'share karo',
+                              'seedha forward', 'sachai', 'sarkar chupa', 'badi khabar',
+                              'turant', 'jaldi share', 'aage bhejo', 'sach samne aaya']
+        t_lower = t.lower()
+        for kw in hinglish_clickbait:
+            if kw in t_lower:
+                score += 0.18
 
         # 5. Viral urgency phrases
         urgency = ['forward to', 'share now', 'tell everyone', 'spread the word', 'before it gets deleted']
